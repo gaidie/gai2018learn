@@ -40,4 +40,21 @@ public class UserController {
         return ServerResponse.createSuccess();
     }
 
+    /**
+     *
+     * @param user
+     * @return
+     */
+    @RequestMapping(value = "/register.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> register(User user){
+        return iUserService.register(user);
+    }
+
+    @RequestMapping(value = "/checkIfExists.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> checkIfExist(String userOrEamil, String type){
+        return iUserService.checkIfExists(userOrEamil, type);
+    }
+
 }

@@ -11,4 +11,8 @@ public interface IUserService {
 
     ServerResponse<User> login(String userName, String password);
 
+    ServerResponse<String> register(User user);
+
+    ServerResponse<String> checkIfExists(String userNameOrEmail, String type);
+
 }

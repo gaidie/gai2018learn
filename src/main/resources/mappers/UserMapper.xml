@@ -159,6 +159,13 @@
     where username = #{username,jdbcType=VARCHAR}
   </select>
 
+  <select id="checkEmail" resultType="int" parameterType="string" >
+    select
+      count(1)
+    from mmall_user
+    where email = #{email,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectLoginInfo" resultMap="BaseResultMap" parameterType="map" >
     select
     <include refid="Base_Column_List" />

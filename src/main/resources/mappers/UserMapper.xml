@@ -174,6 +174,22 @@
     and password = #{password, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectQuestionByUserName" resultType="string" parameterType="string" >
+    select
+    question
+    from mmall_user
+    where username = #{userName,jdbcType=VARCHAR}
+  </select>
+
+  <select id="checkQuestionAnswer" resultType="int" parameterType="map" >
+    select
+    count(1)
+    from mmall_user
+    where username = #{userName,jdbcType=VARCHAR}
+    and answer = #{answer, jdbcType=VARCHAR}
+    and question = #{question, jdbcType=VARCHAR}
+  </select>
+
 
 
 </mapper>

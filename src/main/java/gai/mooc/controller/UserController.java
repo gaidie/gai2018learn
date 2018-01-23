@@ -57,4 +57,30 @@ public class UserController {
         return iUserService.checkIfExists(userOrEamil, type);
     }
 
+    /**
+     * 获取登录用户信息
+     * @param session
+     * @return
+     */
+    @RequestMapping(value = "/getUser.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<User> getUserInfo(HttpSession session){
+        User user = (User) session.getAttribute(Constants.CURRENT_USER);
+        if (user != null){
+            return ServerResponse.createSuccess(user);
+        }
+        return ServerResponse.createError("未获取到登录用户信息");
+    }
+
+    @RequestMapping(value="/getForgetQuestion.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> getForgetQuestion(String userName){
+        return iUserService.getForgetQuestion(userName);
+    }
+
+    @RequestMapping(value="/answerForgetQuestion.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> getForgetQuestion(String userName, String question, String answer){
+        return iUserService.answerForgetQuestion(userName, question, answer);
+    }
 }

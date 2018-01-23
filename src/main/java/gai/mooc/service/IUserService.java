@@ -15,4 +15,9 @@ public interface IUserService {
 
     ServerResponse<String> checkIfExists(String userNameOrEmail, String type);
 
+    ServerResponse<String> getForgetQuestion(String userName);
+
+    ServerResponse<String> answerForgetQuestion(String userName, String question, String answer);
+
+
 }

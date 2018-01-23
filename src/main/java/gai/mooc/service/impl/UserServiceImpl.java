@@ -3,12 +3,15 @@ package gai.mooc.service.impl;
 import gai.mooc.bean.pojo.User;
 import gai.mooc.common.Constants;
 import gai.mooc.common.ServerResponse;
+import gai.mooc.common.TokenCache;
 import gai.mooc.dao.UserMapper;
 import gai.mooc.service.IUserService;
 import gai.mooc.util.MD5Util;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 /**
  * Created by Administrator on 2018/1/15.
@@ -62,6 +65,7 @@ public class UserServiceImpl implements IUserService {
         return ServerResponse.createSuccess(REGISTER_SUCCESS);
     }
 
+    @Override
     public ServerResponse<String> checkIfExists(String userNameOrEmail, String type){
         if (StringUtils.isNoneBlank(type)){
             if (Constants.EMAIL_TYPE.equals(type)){
@@ -80,5 +84,36 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createError(ERR_PARAMTERS);
         }
         return ServerResponse.createSuccess("校验成功");
+    }
+
+    /**
+     * 获取忘记密码提示问题
+     * @param userName
+     * @return
+     */
+    @Override
+    public ServerResponse<String> getForgetQuestion(String userName) {
+        ServerResponse<String> response = checkIfExists(userName, Constants.USERNAME_TYPE);
+        if (response.isSuccess()){
+            return ServerResponse.createError("用户存不存在");
+        }
+        String question = userMapper.selectQuestionByUserName(userName);
+        if (StringUtils.isNoneBlank(question)){
+            return ServerResponse.createSuccess(question);
+        }
+        return ServerResponse.createError("忘记密码提示问题为空");
+    }
+
+    @Override
+    public ServerResponse<String> answerForgetQuestion(String userName, String question, String answer) {
+        int resultCount = userMapper.checkQuestionAnswer(userName, question, answer);
+        if (resultCount > 0){
+            //回答正确
+            String token = UUID.randomUUID().toString();
+            TokenCache.setKey("token_"+userName, token);
+            return ServerResponse.createSuccess(token);
+        }
+        return ServerResponse.createError("密码问题答案回答错误");
+
     }
 }

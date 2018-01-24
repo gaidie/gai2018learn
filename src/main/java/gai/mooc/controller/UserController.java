@@ -2,6 +2,7 @@ package gai.mooc.controller;
 
 import gai.mooc.bean.pojo.User;
 import gai.mooc.common.Constants;
+import gai.mooc.common.ResponseCode;
 import gai.mooc.common.ServerResponse;
 import gai.mooc.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +21,15 @@ import javax.servlet.http.HttpSession;
 public class UserController {
 
     @Autowired
-    private IUserService iUserService;
+    private IUserService userService;
 
     @RequestMapping(value = "/login.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> login(String userName, String password, HttpSession session){
-        ServerResponse<User> response = iUserService.login(userName, password);
+        ServerResponse<User> response = userService.login(userName, password);
         if (response.isSuccess()){
             session.setAttribute(Constants.CURRENT_USER, response.getData());
         }
-
         return response;
     }
 
@@ -48,13 +48,13 @@ public class UserController {
     @RequestMapping(value = "/register.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> register(User user){
-        return iUserService.register(user);
+        return userService.register(user);
     }
 
     @RequestMapping(value = "/checkIfExists.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> checkIfExist(String userOrEamil, String type){
-        return iUserService.checkIfExists(userOrEamil, type);
+        return userService.checkIfExists(userOrEamil, type);
     }
 
     /**
@@ -62,9 +62,9 @@ public class UserController {
      * @param session
      * @return
      */
-    @RequestMapping(value = "/getUser.do", method = RequestMethod.GET)
+    @RequestMapping(value = "/getLoginUserInfo.do", method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse<User> getUserInfo(HttpSession session){
+    public ServerResponse<User> getLoginUserInfo(HttpSession session){
         User user = (User) session.getAttribute(Constants.CURRENT_USER);
         if (user != null){
             return ServerResponse.createSuccess(user);
@@ -75,19 +75,19 @@ public class UserController {
     @RequestMapping(value="/getForgetQuestion.do", method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<String> getForgetQuestion(String userName){
-        return iUserService.getForgetQuestion(userName);
+        return userService.getForgetQuestion(userName);
     }
 
     @RequestMapping(value="/answerForgetQuestion.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> getForgetQuestion(String userName, String question, String answer){
-        return iUserService.answerForgetQuestion(userName, question, answer);
+        return userService.answerForgetQuestion(userName, question, answer);
     }
 
     @RequestMapping(value="/resetPasswordByToken.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> resetPasswordByToken(String userName, String token, String passwordNew){
-        return iUserService.resetPasswordByToken(userName, token, passwordNew);
+        return userService.resetPasswordByToken(userName, token, passwordNew);
     }
 
     @RequestMapping(value="/resetPasswordByToken.do", method = RequestMethod.POST)
@@ -97,18 +97,41 @@ public class UserController {
         if (user == null){
             return ServerResponse.createError("用户未登录。。。");
         }
-        return iUserService.resetPassword(passwordOld,passwordNew, user);
+        return userService.resetPassword(passwordOld,passwordNew, user);
     }
 
     @RequestMapping(value="/updateUserInfo.do", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse<String> updateUserInfo(HttpSession session,User user){
+    public ServerResponse<User> updateUserInfo(HttpSession session,User user){
         User currentUser = (User) session.getAttribute(Constants.CURRENT_USER);
         if (currentUser == null){
             return ServerResponse.createError("用户未登录。。。");
         }
+        //防止ID和userName被修改
         user.setId(currentUser.getId());
-        return iUserService.updateUserInfo(user);
+        user.setUsername(currentUser.getUsername());
+        ServerResponse<User> updateUserInfo = userService.updateUserInfo(user);
+        if (updateUserInfo.isSuccess()){
+            updateUserInfo.getData().setUsername(currentUser.getUsername());
+            session.setAttribute(Constants.CURRENT_USER, updateUserInfo.getData());
+        }
+        return updateUserInfo;
     }
+
+    /**
+     * 获取用户信息
+     * @param session
+     * @return
+     */
+    @RequestMapping(value="/getUserInfo.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<User> getUserInfo(HttpSession session){
+        User currentUser = (User) session.getAttribute(Constants.CURRENT_USER);
+        if (currentUser == null){
+            return ServerResponse.createError(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+        return userService.getUserInfoById(currentUser.getId());
+    }
+    
 
 }

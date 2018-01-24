@@ -165,7 +165,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public ServerResponse<String> updateUserInfo(User user) {
+    public ServerResponse<User> updateUserInfo(User user) {
         //用户名不能修改 email也不能重复
         int count = userMapper.checkEmailByUserId(user.getEmail(), user.getId());
         if (count >0 ){
@@ -179,10 +179,21 @@ public class UserServiceImpl implements IUserService {
         updateUser.setPhone(user.getPhone());
         int result = userMapper.updateByPrimaryKeySelective(updateUser);
         if (result > 0){
-            return ServerResponse.createSuccess("用户信息修改成功");
+            return ServerResponse.createSuccess("用户信息修改成功", updateUser);
         }else {
             return ServerResponse.createError("用户信息修改失败");
         }
 
+    }
+
+    @Override
+    public ServerResponse<User> getUserInfoById(Integer id) {
+        User user = userMapper.selectByPrimaryKey(id);
+        if (user != null){
+            user.setPassword(StringUtils.EMPTY);
+            return ServerResponse.createSuccess(user);
+        }else {
+            return ServerResponse.createError("为获取到登录用户信息");
+        }
     }
 }

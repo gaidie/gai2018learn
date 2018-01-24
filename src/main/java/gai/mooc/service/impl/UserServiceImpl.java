@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+
 /**
  * Created by Administrator on 2018/1/15.
  */
@@ -27,6 +28,7 @@ public class UserServiceImpl implements IUserService {
     public static final String REGISTER_SUCCESS = "注册成功";
     public static final String REGISTER_FAILED = "注册失败";
     public static final String ERR_PARAMTERS = "参数错误";
+
     @Autowired
     private UserMapper userMapper;
 
@@ -110,10 +112,77 @@ public class UserServiceImpl implements IUserService {
         if (resultCount > 0){
             //回答正确
             String token = UUID.randomUUID().toString();
-            TokenCache.setKey("token_"+userName, token);
+            TokenCache.setKey(TokenCache.TOKEN_PREFIX +userName, token);
             return ServerResponse.createSuccess(token);
         }
         return ServerResponse.createError("密码问题答案回答错误");
+    }
+
+    @Override
+    public ServerResponse<String> resetPasswordByToken(String userName, String token, String passwordNew) {
+        if (StringUtils.isEmpty(token)){
+            return ServerResponse.createError("验证token不能为空");
+        }
+        if (StringUtils.isEmpty(passwordNew)){
+            return ServerResponse.createError("重置密码不能为空");
+        }
+        ServerResponse<String> response = checkIfExists(userName, Constants.USERNAME_TYPE);
+        if (response.isSuccess()){
+            return ServerResponse.createError("用户名不存在");
+        }
+        String cacheToken = TokenCache.getValue(TokenCache.TOKEN_PREFIX + userName);
+        if (StringUtils.isEmpty(cacheToken)){
+            return ServerResponse.createError("token不存在或者已经失效,请重新获取token");
+        }
+        if (StringUtils.equals(token, cacheToken)){
+            int updateCount = userMapper.updatePasswordByUserName(userName, passwordNew);
+            if (updateCount > 0){
+                return ServerResponse.createSuccess("密码重置成功");
+            }
+            return ServerResponse.createError("密码重置修改失败");
+        }else {
+            return ServerResponse.createError("重置密码token不一致");
+        }
+    }
+
+    @Override
+    public ServerResponse<String> resetPassword(String passwordOld, String passwordNew, User user) {
+        if (StringUtils.isEmpty(passwordOld) || StringUtils.isEmpty(passwordNew)){
+            return ServerResponse.createError("用户名或者密码为空");
+        }
+        //防止横向越权
+        int count = userMapper.checkPassword(MD5Util.MD5EncodeUtf8(passwordOld), user.getId());
+        if (count < 0){
+            return ServerResponse.createError("用户旧密码不匹配");
+        }
+        user.setPassword(MD5Util.MD5EncodeUtf8(passwordOld));
+        int resultCount = userMapper.updateByPrimaryKeySelective(user);
+        if (resultCount > 0){
+            return ServerResponse.createSuccess("密码修改成功");
+        }else {
+         return ServerResponse.createError("密码修改失败");
+        }
+    }
+
+    @Override
+    public ServerResponse<String> updateUserInfo(User user) {
+        //用户名不能修改 email也不能重复
+        int count = userMapper.checkEmailByUserId(user.getEmail(), user.getId());
+        if (count >0 ){
+            return ServerResponse.createError("邮箱已经被占用");
+        }
+        User updateUser =  new User();
+        updateUser.setId(user.getId());
+        updateUser.setAnswer(user.getAnswer());
+        updateUser.setAnswer(user.getQuestion());
+        updateUser.setEmail(user.getEmail());
+        updateUser.setPhone(user.getPhone());
+        int result = userMapper.updateByPrimaryKeySelective(updateUser);
+        if (result > 0){
+            return ServerResponse.createSuccess("用户信息修改成功");
+        }else {
+            return ServerResponse.createError("用户信息修改失败");
+        }
 
     }
 }

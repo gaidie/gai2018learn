@@ -166,6 +166,14 @@
     where email = #{email,jdbcType=VARCHAR}
   </select>
 
+  <select id="checkEmailByUserId" resultType="int" parameterType="map" >
+    select
+      count(1)
+    from mmall_user
+    where email = #{email,jdbcType=VARCHAR}
+    and id != #{userId}
+  </select>
+
   <select id="selectLoginInfo" resultMap="BaseResultMap" parameterType="map" >
     select
     <include refid="Base_Column_List" />
@@ -190,6 +198,21 @@
     and question = #{question, jdbcType=VARCHAR}
   </select>
 
+  <update id="updatePasswordByUserName" parameterType="map">
+    UPDATE mmall_user
+    SET password = #{passwordNew, jdbcType=VARCHAR},
+    update_time = now()
+    where userName = #{userName, jdbcType=VARCHAR}
+  </update>
+
+
+  <select id="checkPassword" resultType="int" parameterType="map" >
+    select
+    count(1)
+    from mmall_user
+    where id = #{userId}
+    and password = #{passwordOld}
+  </select>
 
 
 </mapper>

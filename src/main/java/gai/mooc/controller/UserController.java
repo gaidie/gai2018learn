@@ -90,7 +90,7 @@ public class UserController {
         return userService.resetPasswordByToken(userName, token, passwordNew);
     }
 
-    @RequestMapping(value="/resetPasswordByToken.do", method = RequestMethod.POST)
+    @RequestMapping(value="/resetPassword.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> resetPassword(HttpSession session,String passwordOld,String passwordNew){
         User user = (User) session.getAttribute(Constants.CURRENT_USER);

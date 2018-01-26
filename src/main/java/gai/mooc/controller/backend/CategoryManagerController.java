@@ -57,7 +57,7 @@ public class CategoryManagerController {
 
     @RequestMapping(value = "/getAllChildCategory.do", method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse<Category> getAllChildCategory(HttpSession session,
+    public ServerResponse<List<Category>> getAllChildCategory(HttpSession session,
                                                      @RequestParam(value = "categoryId", defaultValue = "0")
                                                              Integer categoryId){
         User currentUser = (User) session.getAttribute(Constants.CURRENT_USER);

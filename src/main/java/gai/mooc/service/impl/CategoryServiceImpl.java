@@ -18,7 +18,7 @@ import java.util.Set;
  * Created by Administrator on 2018/1/25.
  */
 @Service("iCategoryService")
-public class CategoryService implements ICategoryService {
+public class CategoryServiceImpl implements ICategoryService {
 
 
     @Autowired

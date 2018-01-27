@@ -17,7 +17,7 @@ import java.util.List;
  * Created by Administrator on 2018/1/25.
  */
 @Controller
-@RequestMapping("/manager/category")
+@RequestMapping("/backend/category")
 public class CategoryManagerController {
 
 

@@ -2,7 +2,7 @@ package gai.mooc.service;
 
 import com.github.pagehelper.PageInfo;
 import gai.mooc.bean.pojo.Product;
-import gai.mooc.bean.vo.ProductDetail;
+import gai.mooc.bean.vo.ProductDetailVo;
 import gai.mooc.common.ServerResponse;
 
 /**
@@ -12,7 +12,7 @@ public interface IProductService {
 
     ServerResponse<String> addProduct(Product product);
 
-    ServerResponse<ProductDetail> getProduct(Integer productId);
+    ServerResponse<ProductDetailVo> getProduct(Integer productId);
 
     ServerResponse<String> updateSaleStatus(Integer productId, Integer status);
 

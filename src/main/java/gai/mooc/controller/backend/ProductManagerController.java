@@ -4,7 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import gai.mooc.bean.pojo.Product;
 import gai.mooc.bean.pojo.User;
-import gai.mooc.bean.vo.ProductDetail;
+import gai.mooc.bean.vo.ProductDetailVo;
 import gai.mooc.common.Constants;
 import gai.mooc.common.ResponseCode;
 import gai.mooc.common.ServerResponse;
@@ -54,7 +54,7 @@ public class ProductManagerController {
 
     @RequestMapping(value = "/getProduct.do", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse<ProductDetail> getProduct(HttpSession session, Integer productId){
+    public ServerResponse<ProductDetailVo> getProduct(HttpSession session, Integer productId){
         User currentUser = (User) session.getAttribute(Constants.CURRENT_USER);
         if (currentUser == null){
             return ServerResponse.createError(ResponseCode.NEED_LOGIN.getCode(),"需要登录在使用");

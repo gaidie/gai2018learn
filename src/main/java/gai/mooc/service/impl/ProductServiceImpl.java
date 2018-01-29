@@ -4,8 +4,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import gai.mooc.bean.pojo.Category;
 import gai.mooc.bean.pojo.Product;
-import gai.mooc.bean.vo.ProductDetail;
-import gai.mooc.bean.vo.ProductList;
+import gai.mooc.bean.vo.ProductDetailVo;
+import gai.mooc.bean.vo.ProductListVo;
 import gai.mooc.common.ServerResponse;
 import gai.mooc.dao.CategoryMapper;
 import gai.mooc.dao.ProductMapper;
@@ -68,7 +68,7 @@ public class ProductServiceImpl implements IProductService {
      * @return
      */
     @Override
-    public ServerResponse<ProductDetail> getProduct(Integer productId) {
+    public ServerResponse<ProductDetailVo> getProduct(Integer productId) {
         if (productId == null || productId == 0){
             return ServerResponse.createError("产品ID不能为空");
         }
@@ -76,12 +76,12 @@ public class ProductServiceImpl implements IProductService {
         if (product == null){
             return ServerResponse.createError("未找到产品详情数据");
         }
-        ProductDetail productDetail = fillProduct(product);
-        return ServerResponse.createSuccess(productDetail);
+        ProductDetailVo productDetailVo = fillProduct(product);
+        return ServerResponse.createSuccess(productDetailVo);
     }
 
-    private ProductDetail fillProduct(Product product){
-        ProductDetail detail = new ProductDetail();
+    private ProductDetailVo fillProduct(Product product){
+        ProductDetailVo detail = new ProductDetailVo();
         detail.setId(product.getId());
         detail.setCategoryId(product.getCategoryId());
         detail.setName(product.getName());
@@ -125,13 +125,13 @@ public class ProductServiceImpl implements IProductService {
     public ServerResponse<PageInfo> getProductList(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         List<Product> products = productMapper.selectList();
-        List<ProductList> productList = new ArrayList<>();
+        List<ProductListVo> productListVo = new ArrayList<>();
         for (int i = 0; i < products.size(); i++) {
-            ProductList item = fillProductList(products.get(i));
-            productList.add(item);
+            ProductListVo item = fillProductList(products.get(i));
+            productListVo.add(item);
         }
         PageInfo pageResult = new PageInfo(products);
-        pageResult.setList(productList);
+        pageResult.setList(productListVo);
         return ServerResponse.createSuccess(pageResult);
     }
 
@@ -146,18 +146,18 @@ public class ProductServiceImpl implements IProductService {
                     .toString();
         }
         List<Product> products = productMapper.selectListByNameAndId(productName, productId);
-        List<ProductList> productList = new ArrayList<>();
+        List<ProductListVo> productListVo = new ArrayList<>();
         for (int i = 0; i < products.size(); i++) {
-            ProductList item = fillProductList(products.get(i));
-            productList.add(item);
+            ProductListVo item = fillProductList(products.get(i));
+            productListVo.add(item);
         }
         PageInfo pageResult = new PageInfo(products);
-        pageResult.setList(productList);
+        pageResult.setList(productListVo);
         return ServerResponse.createSuccess(pageResult);
     }
 
-    private ProductList fillProductList(Product product){
-        ProductList list = new ProductList();
+    private ProductListVo fillProductList(Product product){
+        ProductListVo list = new ProductListVo();
         list.setId(product.getId());
         list.setName(product.getName());
         list.setSubTitle(product.getSubtitle());
